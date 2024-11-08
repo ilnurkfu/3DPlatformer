@@ -32,19 +32,33 @@ public class Movement : MonoBehaviour
 
     private void FixedUpdate()
     {
-        PlayerMovement();
+        PhypsiscMove();
     }
 
     private void PlayerMovement()
     {
-        float horizontal = Input.GetAxisRaw("Horizontal");
-        float vertical = Input.GetAxisRaw("Vertical");
-        Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized;
-        Vector3 clampDirection = Vector3.ClampMagnitude(direction * speed * Time.fixedDeltaTime, speed * Time.fixedDeltaTime);
-        transform.position += clampDirection;
+        if(isGrounded == true)
+        {
+            float horizontal = Input.GetAxisRaw("Horizontal");
+            float vertical = Input.GetAxisRaw("Vertical");
+            Vector3 direction = new Vector3(horizontal, 0f, vertical).normalized * speed * Time.fixedDeltaTime;
+            //Vector3 direction = new Vector3(horizontal, 0f, vertical) * speed * Time.fixedDeltaTime;
+            //Vector3 clampDirection = Vector3.ClampMagnitude(direction * speed * Time.fixedDeltaTime, speed * Time.fixedDeltaTime);
+            transform.position += direction;
+        }
     }
 
-
+    private void PhypsiscMove()
+    {
+        if (isGrounded == true)
+        {
+            float horizontal = Input.GetAxisRaw("Horizontal");
+            float vertical = Input.GetAxisRaw("Vertical");
+            Vector3 direction = (horizontal * transform.right + vertical * transform.forward).normalized * speed * Time.fixedDeltaTime;
+            Vector3 newLinearVelocity = new Vector3(direction.x, rigi.linearVelocity.y, direction.z);
+            rigi.linearVelocity = newLinearVelocity;
+        }
+    }
 
     private void Jump()
     {
@@ -61,7 +75,7 @@ public class Movement : MonoBehaviour
         return isGrounded;
     }
 
-    private bool IsGroundedWithSphere()
+    public bool IsGroundedWithSphere()
     {
         isGrounded = Physics.OverlapSphere(groundCheck.position, radius, layer).Length > 0;
         Debug.Log("Spher grounded=: " + (Physics.OverlapSphere(groundCheck.position, radius, layer).Length > 0));
