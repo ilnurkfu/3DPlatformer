@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CameraRotation : MonoBehaviour
 {
@@ -11,13 +12,13 @@ public class CameraRotation : MonoBehaviour
 
     private void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.lockState = CursorLockMode.Locked;
     }
 
-    private void Update()
+    public void RotateCamera(float mouseX, float mouseY)
     {
-        float mouseX = Input.GetAxisRaw("Mouse X") * sensivity;
-        float mouseY = Input.GetAxisRaw("Mouse Y") * sensivity;
+        mouseX = mouseX * sensivity;
+        mouseY = mouseY * sensivity;
 
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, minVerticalAngle, maxVerticalAngle);
