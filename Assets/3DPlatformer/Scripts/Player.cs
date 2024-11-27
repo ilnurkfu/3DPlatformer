@@ -1,12 +1,12 @@
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
-public class Player : MonoBehaviour
+public class Player : Character
 {
     [SerializeField] private bool isGrounded;
 
     [SerializeField] private float reycastDistance;
     [SerializeField] private float radius;
+    [SerializeField] private float health;
 
     [SerializeField] private LayerMask layer;
 
@@ -32,37 +32,42 @@ public class Player : MonoBehaviour
 
         if (IsGroundedWithSphere() == true)
         {
+            movement.ChangeGravityVelocity();
             if (Input.GetKeyDown(KeyCode.Space))
             {
                 movement.Jump();
             }
         }
 
+        movement.PlayerMove(playerInput.Horizontal, playerInput.Vertical);
         cameraRotation.RotateCamera(playerInput.MouseX, playerInput.MouseY);
     }
 
-    private void FixedUpdate()
-    {
-        if(isGrounded == true)
-        {
+    //private void FixedUpdate()
+    //{
+    //    movement.PhypsiscMove(playerInput.Horizontal, playerInput.Vertical);
+    //}
 
-            movement.PhypsiscMove(playerInput.Horizontal, playerInput.Vertical);
-        }
+    public override void Resize(float newMultiplaer)
+    {
+        base.Resize(newMultiplaer);
+        radius *= newMultiplaer;
+        reycastDistance *= newMultiplaer;
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.GetComponent<TriggerObject>() != null)
+        if(other.GetComponent<ITriggerObject>() != null)
         {
-            TriggerObject currentTrigger = other.GetComponent<TriggerObject>();
-            if(currentTrigger.IsActive == true)
-            {
-                Resize();
-                currentTrigger.Deactivated();
-            }
-
-            GetComponent<MeshRenderer>().material.color = Color.green;
+            other.GetComponent<ITriggerObject>().TriggerAction(this);
         }
+
+        //Debug.Log("ITriggerObject is empty:= " + other.GetComponent<ITriggerObject>() != null);
+        //if (other.GetComponent<ITriggerObject>() != null)
+        //{
+        //    ITriggerObject currentTriggerObject = other.GetComponent<ITriggerObject>();
+        //    currentTriggerObject.TriggerAction();
+        //}
     }
 
     //private void OnTriggerStay(Collider other)
@@ -70,30 +75,17 @@ public class Player : MonoBehaviour
     //    Debug.Log("OnTriggerStay");
     //}
 
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.GetComponent<TriggerObject>() != null)
-        {
-            GetComponent<MeshRenderer>().material.color = Color.gray;
-        }
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        if(collision.gameObject.GetComponent<CollisionObject>() != null)
-        {
-            collision.gameObject.GetComponent<MeshRenderer>().material.color = Color.red;
-            movement.ChangeSpeed(collision.gameObject.GetComponent<CollisionObject>().BonusSpeed);
-        }
-    }
-
-    //private void OnCollisionStay(Collision collision)
+    //private void OnTriggerExit(Collider other)
     //{
-    //    if (collision.gameObject.GetComponent<CollisionObject>() != null)
-    //    {
-    //        Debug.Log("OnCollisionStay");
-    //    }
     //}
+
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.gameObject.GetComponent<Door>())
+        {
+            hit.gameObject.GetComponent<Door>().ColorCheck(gameObject.GetComponent<MeshRenderer>().material.color);
+        }
+    }
 
     //private void OnCollisionExit(Collision collision)
     //{
@@ -129,10 +121,17 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void Resize()
+    public void ApplyDamage(int newDamage)
     {
-        transform.localScale *= 2f;
-        radius *= 2f;
-        reycastDistance *= 2f;
+        health = Mathf.Max(0, health - newDamage);
+        if(health == 0)
+        {
+            Died();
+        }
+    }
+
+    private void Died()
+    {
+        Debug.Log("Потрачено");
     }
 }

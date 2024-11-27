@@ -12,7 +12,7 @@ public class CameraRotation : MonoBehaviour
 
     private void Start()
     {
-        //Cursor.lockState = CursorLockMode.Locked;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     public void RotateCamera(float mouseX, float mouseY)
