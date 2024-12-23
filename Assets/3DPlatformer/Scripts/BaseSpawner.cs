@@ -27,7 +27,7 @@ public abstract class BaseSpawner : MonoBehaviour, ISpawner, ITriggerObject
 
     public abstract void Spawn();
 
-    public void TriggerAction(Player player)
+    public void TriggerAction(Character character)
     {
         Spawn();
     }
@@ -56,5 +56,10 @@ public abstract class BaseSpawner : MonoBehaviour, ISpawner, ITriggerObject
         {
             uiText.text = notSpawnText;
         }
+    }
+
+    public void ExitAction(Character character)
+    {
+        
     }
 }

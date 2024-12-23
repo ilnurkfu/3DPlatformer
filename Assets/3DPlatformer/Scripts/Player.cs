@@ -1,12 +1,14 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player : Character
 {
     [SerializeField] private bool isGrounded;
+    [SerializeField] private bool isPause;
 
     [SerializeField] private float reycastDistance;
     [SerializeField] private float radius;
-    [SerializeField] private float health;
+    [SerializeField] private float startRadius;
 
     [SerializeField] private LayerMask layer;
 
@@ -18,6 +20,8 @@ public class Player : Character
 
     [SerializeField] private PlayerInput playerInput;
 
+    [SerializeField] private UISwitcher uISwitcher;
+
     private void Awake()
     {
         movement = GetComponent<Movement>();
@@ -25,22 +29,36 @@ public class Player : Character
         playerInput = GetComponent<PlayerInput>();
     }
 
+    private void Start()
+    {
+        startRadius = radius;
+    }
+
     private void Update()
     {
-        playerInput.MouseInput();
-        playerInput.KeyBoardInput();
-
-        if (IsGroundedWithSphere() == true)
+        if(isPause == false)
         {
-            movement.ChangeGravityVelocity();
-            if (Input.GetKeyDown(KeyCode.Space))
+            playerInput.MouseInput();
+            playerInput.KeyBoardInput();
+
+            if (IsGroundedWithSphere() == true)
             {
-                movement.Jump();
+                movement.ChangeGravityVelocity();
+                if (playerInput.JumpInput())
+                {
+                    movement.Jump();
+                }
             }
+
+            movement.PlayerMove(playerInput.Horizontal, playerInput.Vertical);
+            cameraRotation.RotateCamera(playerInput.MouseX, playerInput.MouseY);
         }
 
-        movement.PlayerMove(playerInput.Horizontal, playerInput.Vertical);
-        cameraRotation.RotateCamera(playerInput.MouseX, playerInput.MouseY);
+        if (playerInput.PauseInput())
+        {
+            uISwitcher.SwitchPauseMenu();
+            PauseSwitch();
+        }
     }
 
     //private void FixedUpdate()
@@ -48,36 +66,17 @@ public class Player : Character
     //    movement.PhypsiscMove(playerInput.Horizontal, playerInput.Vertical);
     //}
 
+    public void PauseSwitch()
+    {
+        isPause = uISwitcher.GetPauseMenuStatus();
+    }
+
     public override void Resize(float newMultiplaer)
     {
         base.Resize(newMultiplaer);
-        radius *= newMultiplaer;
-        reycastDistance *= newMultiplaer;
+        radius = (startRadius + movement.Controller.skinWidth) * newMultiplaer;
+        reycastDistance = (startRadius + movement.Controller.skinWidth) * newMultiplaer;
     }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if(other.GetComponent<ITriggerObject>() != null)
-        {
-            other.GetComponent<ITriggerObject>().TriggerAction(this);
-        }
-
-        //Debug.Log("ITriggerObject is empty:= " + other.GetComponent<ITriggerObject>() != null);
-        //if (other.GetComponent<ITriggerObject>() != null)
-        //{
-        //    ITriggerObject currentTriggerObject = other.GetComponent<ITriggerObject>();
-        //    currentTriggerObject.TriggerAction();
-        //}
-    }
-
-    //private void OnTriggerStay(Collider other)
-    //{
-    //    Debug.Log("OnTriggerStay");
-    //}
-
-    //private void OnTriggerExit(Collider other)
-    //{
-    //}
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
@@ -121,17 +120,9 @@ public class Player : Character
         }
     }
 
-    public void ApplyDamage(int newDamage)
+    protected override void Died()
     {
-        health = Mathf.Max(0, health - newDamage);
-        if(health == 0)
-        {
-            Died();
-        }
-    }
-
-    private void Died()
-    {
-        Debug.Log("Потрачено");
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        SceneManager.LoadScene(currentSceneName);
     }
 }

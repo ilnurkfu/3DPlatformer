@@ -3,9 +3,14 @@ using UnityEngine;
 public class Lava : MonoBehaviour, ITriggerObject
 {
     [SerializeField] private int damage;
+    [SerializeField] private DamageType damageType;
 
-    public void TriggerAction(Player player)
+    public void ExitAction(Character character)
     {
-        player.ApplyDamage(damage);
+    }
+
+    public void TriggerAction(Character character)
+    {
+        character.ApplyDamage(damage, damageType);
     }
 }

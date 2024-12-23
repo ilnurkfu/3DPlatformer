@@ -50,4 +50,14 @@ public class PlayerInput : MonoBehaviour
         mouseX = Input.GetAxisRaw("Mouse X");
         mouseY = Input.GetAxisRaw("Mouse Y");
     }
+
+    public bool JumpInput()
+    {
+       return Input.GetKeyDown(KeyCode.Space);
+    }
+
+    public bool PauseInput()
+    {
+       return Input.GetKeyDown(KeyCode.E);
+    }
 }
