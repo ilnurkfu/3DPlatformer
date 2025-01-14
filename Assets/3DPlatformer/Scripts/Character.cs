@@ -13,6 +13,9 @@ public abstract class Character : MonoBehaviour
 
     [SerializeField] private DamageType[] resistance;
 
+    [SerializeField] protected Animator animator;
+    [SerializeField] protected AudioSource audioSource;
+
     public virtual void Resize(float newMultiplaer)
     {
         transform.localScale = Vector3.one * newMultiplaer;
@@ -23,7 +26,7 @@ public abstract class Character : MonoBehaviour
         GetComponent<MeshRenderer>().material.color = newColor;
     }
 
-    public void ApplyDamage(int newDamage, DamageType damageType)
+    public virtual void ApplyDamage(int newDamage, DamageType damageType)
     {
         Debug.Log(resistance.Contains(damageType));
         if(resistance.Contains(damageType))
@@ -31,11 +34,14 @@ public abstract class Character : MonoBehaviour
             Debug.Log($"У персонажа {name} иммунитет к типу урона {damageType.ToString()}");
             return;
         }
+        audioSource.Play();
         health = Mathf.Max(0, health - newDamage);
         if (health == 0)
         {
             Died();
+            return;
         }
+        animator.SetTrigger("ApplyDamage");
     }
 
     public IEnumerator ChangeSpeed(float scaleSpeed, float duration)
@@ -80,13 +86,11 @@ public abstract class Character : MonoBehaviour
             other.GetComponent<ITriggerObject>().ExitAction(this);
         }
     }
-
-
-
 }
 
 public enum DamageType
 {
     Physical,
-    Fire
+    Fire,
+    SuperPhysical
 }

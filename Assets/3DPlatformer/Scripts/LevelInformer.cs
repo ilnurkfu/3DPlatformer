@@ -6,6 +6,14 @@ public class LevelInformer : ScriptableObject
 {
     [SerializeField] private int currentStarsCount;
 
+    public int CurrentStarsCount
+    {
+        get
+        {
+            return currentStarsCount;
+        }
+    }
+
     private void Start()
     {
         Debug.Log(Path.Combine(Application.persistentDataPath, $"{name}.json").ToString());
@@ -49,14 +57,6 @@ public class LevelInformer : ScriptableObject
         catch (System.Exception e)
         {
             Debug.LogError($"Ошибка при загрузке данных: {e.Message}");
-        }
-    }
-
-    public int CurrentStarsCount
-    {
-        get
-        {
-            return currentStarsCount;
         }
     }
 

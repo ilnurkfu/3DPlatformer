@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 68cc7d54b92a87942b35a03d2153316e, type: 3}
   m_Name: LevelInformer_1
   m_EditorClassIdentifier: 
-  currentStarsCount: 3
+  currentStarsCount: 0

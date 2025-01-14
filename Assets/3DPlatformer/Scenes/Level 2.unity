@@ -13090,7 +13090,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   timerText: {fileID: 1579903635}
   starsText: {fileID: 222537256}
-  nextSceneIndex: 0
+  nextSceneIndex: 3
 --- !u!1 &2142613220
 GameObject:
   m_ObjectHideFlags: 0

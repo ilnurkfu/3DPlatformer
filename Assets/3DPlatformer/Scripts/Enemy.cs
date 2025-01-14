@@ -11,6 +11,8 @@ public class Enemy : Character
     [SerializeField] private float chaseSpeed;
     [SerializeField] private float requiredDistance;
     [SerializeField] private float attackDistance;
+    [SerializeField] private float stunTimer;
+    [SerializeField] private float stunCooldown;
 
     [SerializeField] private Transform playerPosition;
 
@@ -18,7 +20,6 @@ public class Enemy : Character
 
     [SerializeField] private Transform[] wayPoints;
 
-    [SerializeField]
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -34,9 +35,11 @@ public class Enemy : Character
         if(canChase == true)
         {
             float distance = Vector3.SqrMagnitude(playerPosition.position - transform.position);
+            Debug.Log("Distance:= " + distance);
             if (distance > detectionRadius * detectionRadius)
             {
                 agent.speed = patrolSpeed;
+                animator.SetFloat("Speed", patrolSpeed);
             }
             else
             {
@@ -48,7 +51,8 @@ public class Enemy : Character
                     if (path.status == NavMeshPathStatus.PathComplete)
                     {
                         agent.speed = chaseSpeed;
-                        agent.destination = playerPosition.position;
+                        animator.SetFloat("Speed", chaseSpeed);
+                        MoveToPoint(playerPosition.position);
                     }
                     else
                     {
@@ -62,6 +66,11 @@ public class Enemy : Character
             }
         }
 
+        if (stunTimer > 0)
+        {
+            stunTimer -= Time.deltaTime;
+        }
+
         Debug.Log("!pathpending:= " + !agent.pathPending);
         if (!agent.pathPending && agent.remainingDistance < requiredDistance)
         {
@@ -69,9 +78,22 @@ public class Enemy : Character
         }
     }
 
+    public void PlaySound()
+    {
+        Debug.Log("Sound");
+        audioSource.Play();
+    }
+
     public void SetChase(bool newChaseStatus)
     {
         canChase = newChaseStatus;
+    }
+
+    public override void ApplyDamage(int newDamage, DamageType damageType)
+    {
+        stunTimer = stunCooldown;
+        agent.ResetPath();
+        base.ApplyDamage(newDamage, damageType);
     }
 
     protected override void Died()
@@ -82,7 +104,10 @@ public class Enemy : Character
 
     private void MoveToPoint(Vector3 targetPosition)
     {
-        agent.destination = targetPosition;
+        if(stunTimer <= 0)
+        {
+            agent.destination = targetPosition;
+        }
     }
 
     private void CalculatedNewPoint()
